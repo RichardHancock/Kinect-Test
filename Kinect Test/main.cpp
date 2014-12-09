@@ -12,6 +12,7 @@ void cleanup();
 //Constants
 const int WIN_WIDTH = 640;
 const int WIN_HEIGHT = 480;
+const bool sitMode = false;
 
 //Globals
 SDL_Window *window;
@@ -29,7 +30,7 @@ int init()
 		std::cout << "SDL_ttf init failed: " << TTF_GetError << std::endl;
 	}
 
-	window = SDL_CreateWindow("Spiffing Spaceships",
+	window = SDL_CreateWindow("Kinect Test",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		WIN_WIDTH, WIN_HEIGHT,
 		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
@@ -59,7 +60,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	KinectInput kinect(false, RightHand);
+	KinectInput kinect(sitMode, RightHand);
 	kinect.startTracking();
 
 	Texture* cursor = new Texture("cursor.png", renderer);
@@ -106,15 +107,30 @@ int main(int argc, char **argv)
 		SDL_RenderClear(renderer);		
 		
 		//This is only so messy because of the conversion from 3D to 2D
-		Vec2 handPos(kinect.getHandPos().x, kinect.getHandPos().y);
+		//This scales the Cartesian coords to fit the screen width and height
+		Vec2 posToDraw(kinect.getHandPos().x * 145.455f, kinect.getHandPos().y * 150);
 		float handDepth = kinect.getHandPos().z;
+		//std::cout << handDepth << std::endl;
 
-		Vec2 posToDraw = cursorCenter - handPos;
+		/*
+		if (handPos.x < 0) { handPos.x = fabs(handPos.x); }
+		else { handPos.x += 290.91f; }
+
+		if (handPos.y < 0) { handPos.y = fabs(handPos.y); }
+		else { handPos.y += 300.0f; }
+		*/
+
+		//This converts the Cartesian Coords to screen coords Still a bit off
+		posToDraw.x = posToDraw.x + (640 / 2);
+		posToDraw.y = (480 / 2) - posToDraw.y;
+
+		std::cout << posToDraw << std::endl;
+		
 		cursor->draw(posToDraw);
 		
 		// Debug cursor point
 		SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-		SDL_RenderDrawPoint(renderer, handPos.x, handPos.y);
+		SDL_RenderDrawPoint(renderer, (int)posToDraw.x, (int)posToDraw.y);
 
 		SDL_RenderPresent(renderer);
 

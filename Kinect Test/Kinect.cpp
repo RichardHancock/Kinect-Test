@@ -119,10 +119,11 @@ void KinectInput::update()
 
 void KinectInput::processSkeletonData()
 {
+	
 	NUI_SKELETON_FRAME skeletonFrame = { 0 };
 
 	// Get the skeleton frame that is ready
-	if (kinectSensor->NuiSkeletonGetNextFrame(0, &skeletonFrame))
+	if (kinectSensor->NuiSkeletonGetNextFrame(0, &skeletonFrame) >= 0)
 	{	
 		// Can replace 1 with NUI_SKELETON_COUNT to track multiple people, currently out of scope for our current game.
 		for (int i = 0; i < 1; i++)
